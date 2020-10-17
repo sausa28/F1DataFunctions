@@ -158,6 +158,9 @@
     <Build Include="dbo\Tables\status.sql" />
     <Build Include="staging\Stored Procedures\loadAllTables.sql" />
     <Build Include="Security\staging.sql" />
-    <Build Include="dbo\Stored Procedures\sp_WhoIsActive.sql" />
+    <Build Include="dbo\Stored Procedures\sp_WhoIsActive.sql">
+      <SuppressTSqlWarnings>71502</SuppressTSqlWarnings>
+    </Build>
+    <Build Include="dbo\Tables\DataImportLog.sql" />
   </ItemGroup>
 </Project>

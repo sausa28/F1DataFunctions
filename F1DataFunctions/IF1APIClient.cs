@@ -1,9 +1,15 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace F1DataFunctions
 {
-    internal interface IF1APIClient
+    public interface IF1APIClient
     {
-        Task DownloadCSVZipAsync(string targetFilePath);
+        /// <summary>
+        /// Download to specified target file. Returns the last modified date of the downloaded data.
+        /// </summary>
+        /// <param name="targetFilePath"></param>
+        /// <returns></returns>
+        Task<DateTimeOffset> DownloadCSVZipAsync(string targetFilePath);
     }
 }

@@ -11,7 +11,7 @@ using System.Threading.Tasks.Dataflow;
 
 namespace F1DataFunctions
 {
-    internal class F1DataImporter
+    public class F1DataImporter : IF1DataImporter
     {
         private readonly string _dbConnectionString;
 
@@ -35,11 +35,10 @@ namespace F1DataFunctions
 
         public F1DataImporter(string dbConnectionString) => _dbConnectionString = dbConnectionString;
 
-        public async Task ImportAllDataFromCSVZip(string zipFilePath)
+        public async Task ImportAllDataFromCSVZipAsync(string zipFilePath)
         {
-            string tempPath = Path.Combine(Path.GetTempPath(), "f1db_csv");
+            string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var tempDir = new DirectoryInfo(tempPath);
-            foreach (FileInfo file in tempDir.EnumerateFiles()) { file.Delete(); }
 
             ZipFile.ExtractToDirectory(zipFilePath, tempDir.FullName);
 
@@ -47,6 +46,8 @@ namespace F1DataFunctions
             {
                 await ImportCsvFileToTable(csvFile.FullName, _filesToTables[csvFile.Name]);
             }
+
+            await LoadAllTablesFromStaging();
         }
 
         internal async Task ImportCsvFileToTable(string csvFile, string tableName)
@@ -61,13 +62,54 @@ namespace F1DataFunctions
                 await connection.OpenAsync();
                 using var bulkCopy = new SqlBulkCopy(connection);
 
-                var command = connection.CreateCommand();
-                command.CommandText = $"TRUNCATE TABLE {tableName}";
+                var command = new SqlCommand($"TRUNCATE TABLE {tableName}", connection);
                 await command.ExecuteNonQueryAsync();
 
                 bulkCopy.DestinationTableName = tableName;
 
                 await bulkCopy.WriteToServerAsync(data);
+            }
+        }
+
+        private async Task LoadAllTablesFromStaging()
+        {
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SqlCommand("staging.loadAllTables", connection)
+                {
+                    CommandTimeout = 300
+                };
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+
+        public async Task<DateTimeOffset> GetLastImportSourceFileModifiedAsync()
+        {
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                await connection.OpenAsync();
+                var command = new SqlCommand("SELECT TOP(1) [SourceFileModifiedDateTime] FROM dbo.DataImportLog ORDER BY Id DESC", connection);
+                object result = await command.ExecuteScalarAsync();
+
+                if (result is null)
+                    return default;
+
+                return (DateTimeOffset)result;
+            }
+        }
+
+        public async Task LogDataImport(DateTimeOffset runDatetime, DateTimeOffset sourceFileModified)
+        {
+            using (var connection = new SqlConnection(_dbConnectionString))
+            {
+                await connection.OpenAsync();
+                var command = connection.CreateCommand();
+                command.CommandText = "INSERT INTO dbo.DataImportLog (LoadDateTime, SourceFileModifiedDateTime) VALUES (@runDatetime, @sourceFileModified)";
+                command.Parameters.AddWithValue("@runDatetime", runDatetime);
+                command.Parameters.AddWithValue("@sourceFileModified", sourceFileModified);
+
+                await command.ExecuteNonQueryAsync();
             }
         }
     }

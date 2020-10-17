@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[DataImportLog]
+(
+	[Id] INT NOT NULL IDENTITY(1,1) PRIMARY KEY,
+	[LoadDateTime] DATETIMEOFFSET NOT NULL,
+	[SourceFileModifiedDateTime] DATETIMEOFFSET NOT NULL
+)

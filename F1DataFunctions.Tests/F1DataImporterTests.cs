@@ -9,26 +9,49 @@ namespace F1DataFunctions.Tests
 {
     public class F1DataImporterTests
     {
+        private static F1DataImporter CreateDataImporter() =>
+                    new F1DataImporter(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=formula1db");
+
         [Fact]
         public async Task CanLoadRacesToDb()
         {
             // Assemble
-            var importer = new F1DataImporter(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=formula1db");
+            F1DataImporter importer = CreateDataImporter();
             string racesFile = Path.Combine(Environment.CurrentDirectory, "races.csv");
 
             // Act
-            await importer.ImportCsvFileToTable(racesFile, "dbo.races");
+            await importer.ImportCsvFileToTable(racesFile, "staging.races");
         }
 
         [Fact]
         public async Task CanLoadInAllFiles()
         {
             // Assemble
-            var importer = new F1DataImporter(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=formula1db");
-            string zipFilePath = @"D:\Downloads\f1db_csv.zip";
+            F1DataImporter importer = CreateDataImporter();
+            string zipFilePath = Path.Combine(Environment.CurrentDirectory, "f1db_test_csv.zip");
 
             // Act
-            await importer.ImportAllDataFromCSVZip(zipFilePath);
+            await importer.ImportAllDataFromCSVZipAsync(zipFilePath);
+        }
+
+        [Fact]
+        public async Task CanGetMostRecentLogDatetime()
+        {
+            // Assemble
+            F1DataImporter importer = CreateDataImporter();
+
+            // Act
+            DateTimeOffset lastModified = await importer.GetLastImportSourceFileModifiedAsync();
+        }
+
+        [Fact]
+        public async Task CanLogImportToDatabase()
+        {
+            // Assemble
+            F1DataImporter importer = CreateDataImporter();
+
+            // Act
+            await importer.LogDataImport(DateTimeOffset.Now, DateTimeOffset.Now);
         }
     }
 }

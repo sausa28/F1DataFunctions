@@ -13,7 +13,7 @@ namespace F1DataFunctions
         {
             using var csvReader = new StreamReader(csvFile);
 
-            string[] headers = (await csvReader.ReadLineAsync()).Split(',');
+            List<string> headers = ExtractValuesFromRowText(await csvReader.ReadLineAsync(), ',', '"');
             var dataTable = new DataTable();
 
             foreach (string header in headers)
@@ -25,27 +25,7 @@ namespace F1DataFunctions
             while ((rowText = await csvReader.ReadLineAsync()) != null)
             {
                 DataRow row = dataTable.NewRow();
-
-                bool isInQuote = false;
-                var fieldBuilder = new StringBuilder();
-                var fieldValues = new List<string>();
-                foreach(char c in rowText)
-                {
-                    if (c == '"')
-                    {
-                        isInQuote = !isInQuote;
-                    }
-                    else if (!isInQuote && c == ',')
-                    {
-                        fieldValues.Add(fieldBuilder.ToString());
-                        fieldBuilder = new StringBuilder();
-                    }
-                    else
-                    {
-                        fieldBuilder.Append(c);
-                    }
-                }
-                fieldValues.Add(fieldBuilder.ToString());
+                List<string> fieldValues = ExtractValuesFromRowText(rowText, ',', '"');
 
                 for (int i = 0; i < fieldValues.Count; i++)
                 {
@@ -60,6 +40,31 @@ namespace F1DataFunctions
             }
 
             return dataTable;
+        }
+
+        private static List<string> ExtractValuesFromRowText(string rowText, char separator, char delimiter)
+        {
+            bool isInQuote = false;
+            var fieldBuilder = new StringBuilder();
+            var fieldValues = new List<string>();
+            foreach (char c in rowText)
+            {
+                if (c == delimiter)
+                {
+                    isInQuote = !isInQuote;
+                }
+                else if (!isInQuote && c == separator)
+                {
+                    fieldValues.Add(fieldBuilder.ToString());
+                    fieldBuilder = new StringBuilder();
+                }
+                else
+                {
+                    fieldBuilder.Append(c);
+                }
+            }
+            fieldValues.Add(fieldBuilder.ToString());
+            return fieldValues;
         }
     }
 }
