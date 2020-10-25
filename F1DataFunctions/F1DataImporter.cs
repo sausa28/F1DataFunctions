@@ -14,6 +14,7 @@ namespace F1DataFunctions
     public class F1DataImporter : IF1DataImporter
     {
         private readonly string _dbConnectionString;
+        private readonly int _longRunningTimeoutSeconds = 5 * 60;
 
         private readonly Dictionary<string, string> _filesToTables
             = new Dictionary<string, string>
@@ -66,7 +67,7 @@ namespace F1DataFunctions
                 await command.ExecuteNonQueryAsync();
 
                 bulkCopy.DestinationTableName = tableName;
-
+                bulkCopy.BulkCopyTimeout = _longRunningTimeoutSeconds;
                 await bulkCopy.WriteToServerAsync(data);
             }
         }
@@ -78,7 +79,7 @@ namespace F1DataFunctions
                 await connection.OpenAsync();
                 var command = new SqlCommand("staging.loadAllTables", connection)
                 {
-                    CommandTimeout = 300
+                    CommandTimeout = _longRunningTimeoutSeconds
                 };
                 await command.ExecuteNonQueryAsync();
             }

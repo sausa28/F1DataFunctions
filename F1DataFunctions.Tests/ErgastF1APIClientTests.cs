@@ -18,11 +18,23 @@ namespace F1DataFunctions.Tests
             string temp = Path.GetTempFileName();
 
             // Act
-            DateTimeOffset lastModified = await apiClient.DownloadCSVZipAsync(temp);
+            await apiClient.DownloadCSVZipAsync(temp);
 
             // Assert
             var file = new FileInfo(temp);
             Assert.True(file.Length >= 5_000_000);
+        }
+
+        [Fact]
+        public async Task CanCheckCsvLastModified()
+        {
+            // Assemble
+            var apiClient = new ErgastF1APIClient(new HttpClient());
+
+            // Act
+            DateTimeOffset lastModified = await apiClient.GetDataLastModifiedAsync();
+
+            // Assert
             Assert.True(lastModified >= new DateTimeOffset(2020, 10, 01, 0, 0, 0, default));
         }
     }

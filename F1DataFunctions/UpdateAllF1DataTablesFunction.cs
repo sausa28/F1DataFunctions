@@ -27,12 +27,14 @@ namespace F1DataFunctions
 
                 string tempFile = Path.GetTempFileName();
 
-                log.LogInformation("Downloading zip file");
-                DateTimeOffset lastModified = await _f1ApiClient.DownloadCSVZipAsync(tempFile);
+                log.LogInformation("Checking data last modified date");
+                DateTimeOffset lastModified = await _f1ApiClient.GetDataLastModifiedAsync();
                 DateTimeOffset previousLastModified = await _dataImporter.GetLastImportSourceFileModifiedAsync();
 
                 if (lastModified > previousLastModified)
                 {
+                    log.LogInformation("Downloading CSV file");
+                    await _f1ApiClient.DownloadCSVZipAsync(tempFile);
                     log.LogInformation("Importing CSVs to database");
                     await _dataImporter.ImportAllDataFromCSVZipAsync(tempFile);
                     await _dataImporter.LogDataImport(DateTimeOffset.Now, lastModified);

@@ -10,6 +10,7 @@ namespace F1DataFunctions
         /// </summary>
         /// <param name="targetFilePath"></param>
         /// <returns></returns>
-        Task<DateTimeOffset> DownloadCSVZipAsync(string targetFilePath);
+        Task DownloadCSVZipAsync(string targetFilePath);
+        Task<DateTimeOffset> GetDataLastModifiedAsync();
     }
 }

@@ -12,6 +12,7 @@ namespace F1DataFunctions.Tests.Stubs
         private readonly DateTimeOffset _lastModified;
 
         public int DownloadCSVZip_CallCount { get; private set; }
+        public int GetLastModified_CallCount { get; private set; }
 
         public StubF1APIClient(string testZipPath, DateTimeOffset lastModified)
         {
@@ -19,10 +20,16 @@ namespace F1DataFunctions.Tests.Stubs
             _lastModified = lastModified;
         }
 
-        public Task<DateTimeOffset> DownloadCSVZipAsync(string targetFilePath)
+        public Task DownloadCSVZipAsync(string targetFilePath)
         {
             File.Copy(_testZipPath, targetFilePath, true);
             DownloadCSVZip_CallCount++;
+            return Task.CompletedTask;
+        }
+
+        public Task<DateTimeOffset> GetDataLastModifiedAsync()
+        {
+            GetLastModified_CallCount++;
             return Task.FromResult(_lastModified);
         }
     }

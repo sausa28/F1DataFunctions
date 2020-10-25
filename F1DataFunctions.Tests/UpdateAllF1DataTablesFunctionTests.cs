@@ -28,7 +28,8 @@ namespace F1DataFunctions.Tests
             await function.RunAsync(default, logger);
 
             // Assert
-            Assert.Equal(1, apiClient.DownloadCSVZip_CallCount);
+            Assert.Equal(1, apiClient.GetLastModified_CallCount);
+            Assert.Equal(0, apiClient.DownloadCSVZip_CallCount);
             Assert.Equal(0, dataImporter.ImportAllData_CallCount);
         }
 
