@@ -11,7 +11,7 @@ namespace F1DataFunctions
     internal class ErgastF1APIClient : IF1APIClient
     {
         private readonly HttpClient _httpClient;
-        private static readonly string CsvZipUrl = "https://ergast.com/downloads/f1db_csv.zip";
+        private static readonly string CsvZipUrl = "http://ergast.com/downloads/f1db_csv.zip";
 
         public ErgastF1APIClient(HttpClient httpClient) => _httpClient = httpClient;
 
