@@ -23,16 +23,13 @@ namespace F1DataFunctions
         {
             try
             {
-                log.LogInformation($"UpdateAllF1DataTables trigger function executed at: {DateTimeOffset.Now}");
-
-                string tempFile = Path.GetTempFileName();
-
                 log.LogInformation("Checking data last modified date");
                 DateTimeOffset lastModified = await _f1ApiClient.GetDataLastModifiedAsync();
                 DateTimeOffset previousLastModified = await _dataImporter.GetLastImportSourceFileModifiedAsync();
 
                 if (lastModified > previousLastModified)
                 {
+                    string tempFile = Path.GetTempFileName();
                     log.LogInformation("Downloading CSV file");
                     await _f1ApiClient.DownloadCSVZipAsync(tempFile);
                     log.LogInformation("Importing CSVs to database");
