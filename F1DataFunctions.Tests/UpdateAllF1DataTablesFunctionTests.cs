@@ -25,7 +25,7 @@ namespace F1DataFunctions.Tests
             ILogger logger = NullLogger.Instance;
 
             // Act
-            await function.RunAsync(default, logger);
+            await function.RunAsync(logger);
 
             // Assert
             Assert.Equal(1, apiClient.GetLastModified_CallCount);
@@ -46,7 +46,7 @@ namespace F1DataFunctions.Tests
             ILogger logger = NullLogger.Instance;
 
             // Act
-            await function.RunAsync(default, logger);
+            await function.RunAsync(logger);
 
             // Assert
             Assert.Equal(1, apiClient.DownloadCSVZip_CallCount);

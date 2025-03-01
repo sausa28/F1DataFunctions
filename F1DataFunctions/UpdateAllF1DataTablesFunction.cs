@@ -1,8 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 
 namespace F1DataFunctions
@@ -18,8 +16,7 @@ namespace F1DataFunctions
             _f1ApiClient = f1ApiClient;
         }
 
-        [FunctionName("UpdateAllF1DataTables")]
-        public async Task RunAsync([TimerTrigger("0 0 */2 * * *")]TimerInfo timerInfo, ILogger log)
+        public async Task RunAsync(ILogger log)
         {
             try
             {

@@ -1,17 +1,21 @@
 ﻿using F1DataFunctions;
-using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.Hosting;
 
-[assembly:FunctionsStartup(typeof(Startup))]
 namespace F1DataFunctions
 {
-    public class Startup : FunctionsStartup
+    public static class Program
     {
-        public override void Configure(IFunctionsHostBuilder builder)
+        public static void Main()
+        {
+            var builder = Host.CreateApplicationBuilder();
+            Configure(builder);
+            builder.Build().Run();
+        }
+
+        private static void Configure(IHostApplicationBuilder builder)
         {
             builder.Services.AddHttpClient();
             builder.Services.AddTransient<IF1APIClient, ErgastF1APIClient>();
