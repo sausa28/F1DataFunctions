@@ -1,16 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace F1DataFunctions.Tests
 {
-    public class F1DataImporterTests
+    public class F1DataImporterTests : IClassFixture<F1DatabaseFixture>
     {
-        private static F1DataImporter CreateDataImporter() =>
-                    new F1DataImporter(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=formula1db");
+        private readonly F1DatabaseFixture _fixture;
+
+        private F1DataImporter CreateDataImporter() => new F1DataImporter(_fixture.ConnectionString);
+
+        public F1DataImporterTests(F1DatabaseFixture fixture)
+        {
+            _fixture = fixture;
+        }
 
         [Fact]
         public async Task CanLoadRacesToDb()
@@ -53,5 +57,6 @@ namespace F1DataFunctions.Tests
             // Act
             await importer.LogDataImport(DateTimeOffset.Now, DateTimeOffset.Now);
         }
+
     }
 }

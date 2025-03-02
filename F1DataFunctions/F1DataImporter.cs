@@ -41,7 +41,16 @@ namespace F1DataFunctions
             string tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             var tempDir = new DirectoryInfo(tempPath);
 
-            ZipFile.ExtractToDirectory(zipFilePath, tempDir.FullName);
+            var zip = ZipFile.Open(zipFilePath, ZipArchiveMode.Update);
+            if (OperatingSystem.IsLinux())
+            {
+                foreach (var entry in zip.Entries)
+                {
+                    entry.ExternalAttributes |= (Convert.ToInt32("664", 8) << 16);
+                }
+            }
+            
+            zip.ExtractToDirectory(tempDir.FullName);
 
             foreach (FileInfo csvFile in tempDir.EnumerateFiles())
             {
